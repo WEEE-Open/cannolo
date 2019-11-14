@@ -5,32 +5,34 @@ set -e
 FREE_BLOCKS=100
 
 usage(){
-	echo Usage: $0 IMAGE DISK_DEVICE
+	echo 'Usage: $0 IMAGE DISK_DEVICE'
 	echo "Shrink the given image, copy it to the given disk and expand it to fill all the space"
 	echo 
 	echo IMAGE: a disk image
 	echo 'DISK_DEVICE: a disk device file, such as /dev/sdb'
 }
 
-while getopts ":h" opt; do
-	case "${opt}" in
-    		h) 
-			# print help and exit
-	    		usage
+#
+# parse argument
+# 
+
+parsed_options=$(getopt -n $0 -o "h" --long "help" -- $@)
+eval set -- "$parsed_options"
+
+while true
+do
+	case "$1" in 
+		-h|--help)
+			usage
 			exit 0
 			;;
-
-    		*)
-		        # same as -h	
-	    		usage
-			exit 1
-      	    		;;
-
-  	esac
-done
+		--)
+			shift
+			break;;
+	esac
+done	
 
 # parse the 2 remaining mandatory arguments
-shift $((OPTIND-1))
 img_file=$1
 disk=$2
 
