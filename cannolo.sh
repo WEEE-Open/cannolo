@@ -2,7 +2,7 @@
 set -e
 
 # space left free on the primary partition after shrinking (expressed in number of blocks)
-FREE_BLOCKS=100
+FREE_BLOCKS=20
 
 usage(){
 	echo 'Usage: $0 [OPTION] IMAGE DISK_DEVICE'
@@ -110,6 +110,7 @@ then
 	part_new_end=$(($part_new_size + $part_start))
 	
 	echo 
+	echo "Minimum size: $(($minimum_blocks * $block_size))"
 	echo "Start of the partition: $part_start"
 	echo "Size of the partition: $part_size"
 	echo "New size of the partition: $part_new_size"
@@ -129,10 +130,12 @@ else
 fi
 
 # reducing img file size
-truncate_point=$part_new_end
+truncate_point=$(($part_new_end + $FREE_BLOCKS * $block_size))
 echo
 echo "Truncating img at $truncate_point"
-truncate -s $part_new_end $img_file
+truncate -s $truncate_point $img_file
+
+exit 0
 
 echo
 echo "Copying image to disk"
