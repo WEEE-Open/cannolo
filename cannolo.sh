@@ -8,6 +8,7 @@ usage(){
 	echo 'Usage: $0 [OPTION] IMAGE DISK_DEVICE'
 	echo "Shrink the given image, copy it to the given disk and expand it to fill all the space"
 	echo "--no-bake: skip image shrinking"
+	echo "--no-fill: skip image copying/expanding"
 	echo 
 	echo IMAGE: a disk image
 	echo 'DISK_DEVICE: a disk device file, such as /dev/sdb'
@@ -17,10 +18,11 @@ usage(){
 # parse argument
 # 
 
-parsed_options=$(getopt -n $0 -o "h" --long "help,no-bake" -- $@)
+parsed_options=$(getopt -n $0 -o "h" --long "help,no-bake,no-fill" -- $@)
 eval set -- "$parsed_options"
 
 no_bake=false
+no_fill=false
 
 while true
 do
@@ -31,6 +33,9 @@ do
 			;;
 		--no-bake)
 			no_bake=true
+			shift;;
+		--no-fill)
+			no_fill=true
 			shift;;
 		--)
 			shift
@@ -150,15 +155,20 @@ else
 fi
 
 
-echo
-echo "Copying image to disk"
-dd if="$img_file" of="$disk" status=progress
-echo
-
-echo "Expanding primary partition"
-growpart $disk $primary_partition_n
-
-# resize filesystem to fit newly extended partition
-resize2fs "$disk"$primary_partition_n
+if ! $no_fill 
+then
+	echo
+	echo "Copying image to disk"
+	dd if="$img_file" of="$disk" status=progress
+	echo
+	
+	echo "Expanding primary partition"
+	growpart $disk $primary_partition_n
+	
+	# resize filesystem to fit newly extended partition
+	resize2fs "$disk"$primary_partition_n
+else
+	echo "Skipping filling"
+fi
 
 echo 'Done!'
