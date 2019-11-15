@@ -5,8 +5,9 @@ set -e
 FREE_BLOCKS=100
 
 usage(){
-	echo 'Usage: $0 IMAGE DISK_DEVICE'
+	echo 'Usage: $0 [OPTION] IMAGE DISK_DEVICE'
 	echo "Shrink the given image, copy it to the given disk and expand it to fill all the space"
+	echo "--no-bake: skip image shrinking"
 	echo 
 	echo IMAGE: a disk image
 	echo 'DISK_DEVICE: a disk device file, such as /dev/sdb'
@@ -16,8 +17,10 @@ usage(){
 # parse argument
 # 
 
-parsed_options=$(getopt -n $0 -o "h" --long "help" -- $@)
+parsed_options=$(getopt -n $0 -o "h" --long "help,no-bake" -- $@)
 eval set -- "$parsed_options"
+
+no_bake=false
 
 while true
 do
@@ -26,6 +29,9 @@ do
 			usage
 			exit 0
 			;;
+		--no-bake)
+			no_bake=true
+			shift;;
 		--)
 			shift
 			break;;
@@ -73,6 +79,7 @@ echo "Number of the primary partition: $primary_partition_n"
 # gathering data
 parted_output=$(parted -ms "$img_file" unit B print | tail -n 1)
 part_start=$(echo "$parted_output" | awk -v partition_n="$primary_partition_n" -F ':' '$1==partition_n {print $2}' | tr -d 'B')
+part_end=$(echo "$parted_output" | awk -v partition_n="$primary_partition_n" -F ':' '$1==partition_n {print $3}' | tr -d 'B')
 
 loopback=$(losetup -f --show -o "$part_start" "$img_file")
 tune2fs_output=$(tune2fs -l "$loopback")
@@ -86,35 +93,40 @@ sudo e2fsck -pf $loopback
 
 echo "File system check passed"
 
-# estimate the minimum number of blocks needed to store the data on the image
-minimum_blocks=$(resize2fs -P $loopback 2> /dev/null | awk '{ print $NF }')
-
-# resize filesystem
-resize2fs -pM $loopback
-
-# unallocate mounted loop device
-losetup --detach $loopback
-
-# leave some free blocks in the partition and calculate the new size
-new_block_count=$(($minimum_blocks + $FREE_BLOCKS))
-part_new_size=$(($new_block_count * $block_size))
-part_new_end=$(($part_new_size + $part_start))
-
-echo 
-echo "Start of the partition: $part_start"
-echo "Size of the partition: $part_size"
-echo "New size of the partition: $part_new_size"
-echo "New end of the partition: $part_new_end"
-
-if [ $part_size -le $part_new_size ]
+if ! $no_bake
 then
-	echo "Partition is already shrinked"
+	# estimate the minimum number of blocks needed to store the data on the image
+	minimum_blocks=$(resize2fs -P $loopback 2> /dev/null | awk '{ print $NF }')
+	
+	# resize filesystem
+	resize2fs -pM $loopback
+	
+	# unallocate mounted loop device
+	losetup --detach $loopback
+	
+	# leave some free blocks in the partition and calculate the new size
+	new_block_count=$(($minimum_blocks + $FREE_BLOCKS))
+	part_new_size=$(($new_block_count * $block_size))
+	part_new_end=$(($part_new_size + $part_start))
+	
+	echo 
+	echo "Start of the partition: $part_start"
+	echo "Size of the partition: $part_size"
+	echo "New size of the partition: $part_new_size"
+	echo "New end of the partition: $part_new_end"
+	
+	if [ $part_size -le $part_new_size ]
+	then
+		echo "Partition is already shrinked"
+	else
+		echo "Shrinking partition..."
+		yes | parted ---pretend-input-tty $img_file unit B resizepart $primary_partition_n $part_new_end
+	fi
+	
+	echo "Image successfully shrinked"
 else
-	echo "Shrinking partition..."
-	yes | parted ---pretend-input-tty $img_file unit B resizepart $primary_partition_n $part_new_end
+	part_new_end=$part_end
 fi
-
-echo "Image successfully shrinked"
 
 # reducing img file size
 truncate_point=$part_new_end
