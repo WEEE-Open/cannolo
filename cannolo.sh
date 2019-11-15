@@ -125,17 +125,17 @@ then
 	fi
 	
 	echo "Image successfully shrinked"
+
+	# reducing img file size
+	truncate_point=$(($part_new_end + $FREE_BLOCKS * $block_size))
+	echo
+	echo "Truncating img at $truncate_point"
+	truncate -s $truncate_point $img_file
+
 else
 	part_new_end=$part_end
 fi
 
-# reducing img file size
-truncate_point=$(($part_new_end + $FREE_BLOCKS * $block_size))
-echo
-echo "Truncating img at $truncate_point"
-truncate -s $truncate_point $img_file
-
-exit 0
 
 echo
 echo "Copying image to disk"
