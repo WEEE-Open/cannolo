@@ -55,6 +55,19 @@ then
 	exit 1
 fi
 
+if [ "$disk" = "/dev/sda" ]
+then    
+        echo "You selected as disk /dev/sda. This will overwrite the content of the disk. Are you sure?[y/N]"
+        read answer
+
+        if [ "$answer" = y ] || [ "$answer" = Y ]
+        then    
+                echo
+        else    
+                exit 1
+        fi      
+fi
+
 # require root privileges
 if (( EUID != 0 )); then
 	echo "You need to be running as root."
