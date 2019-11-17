@@ -21,13 +21,12 @@ parsed_options=$(getopt -n $0 -o "h" --long "help,no-bake,no-fill" -- $@)
 eval set -- "$parsed_options"
 
 no_bake=false
-no_fill=false
 
 while true
 do
 	case "$1" in 
 		-h|--help)
-			usage
+			tput set af usage
 			exit 0
 			;;
 		--no-bake)
@@ -46,13 +45,13 @@ disk=$2
 # check mandatory arguments
 if [ -z $img_file ]
 then
-	echo "Please provide an image"
+	tput setaf 1 && echo "Please provide an image"
 	exit 1
 fi
 
 if [ "$disk" = "/dev/sda" ]
 then    
-        echo "You selected as disk /dev/sda. This will overwrite the content of the disk. Are you sure?[y/N]"
+        tput setaf 5 && echo "You selected as disk /dev/sda. This will overwrite the content of the disk. Are you sure?[y/N]"
         read answer
 
         if [ "$answer" = y ] || [ "$answer" = Y ]
@@ -65,15 +64,15 @@ fi
 
 # require root privileges
 if (( EUID != 0 )); then
-	echo "You need to be running as root."
+	tput setaf 3 && echo "You need to be running as root."
 	exit -3
 fi
 
-echo Selected image: $img_file
+tput setaf 4 && echo Selected image: $img_file
 echo 
 
 # print disk initial state
-fdisk -l $img_file
+tput setaf 6 && fdisk -l $img_file
 echo
 
 # 
@@ -82,7 +81,7 @@ echo
 
 # TODO: assert there is only one primary partition
 primary_partition_n=$(parted $img_file --script print | awk '$5=="primary" { print $1 }')
-echo "Number of the primary partition: $primary_partition_n"
+tput setaf 4 && echo "Number of the primary partition: $primary_partition_n"
 
 # gathering data
 parted_output=$(parted -ms "$img_file" unit B print | tail -n 1)
@@ -96,10 +95,10 @@ block_count=$(echo "$tune2fs_output" | grep '^Block count:' | tr -d ' ' | cut -d
 part_size=$(($block_count * $block_size))
 
 echo
-echo "Checking file system"
-sudo e2fsck -pf $loopback
+tput setaf 4 && echo "Checking file system"
+tput setaf 6 && sudo e2fsck -pf $loopback
 
-echo "File system check passed"
+tput setaf 2 && echo "File system check passed"
 
 if ! $no_bake
 then
@@ -107,7 +106,7 @@ then
 	minimum_blocks=$(resize2fs -P $loopback 2> /dev/null | awk '{ print $NF }')
 	
 	# resize filesystem
-	resize2fs -pM $loopback
+	tput setaf 6 && resize2fs -pM $loopback
 	
 	# unallocate mounted loop device
 	losetup --detach $loopback
@@ -126,18 +125,18 @@ then
 	
 	if [ $part_size -le $part_new_size ]
 	then
-		echo "Partition is already shrinked"
+		tput setaf 4 && echo "Partition is already shrinked"
 	else
-		echo "Shrinking partition..."
+		tput setaf 3 && echo "Shrinking partition..."
 		yes | parted ---pretend-input-tty $img_file unit B resizepart $primary_partition_n $part_new_end
 	fi
 	
-	echo "Image successfully shrinked"
+	tput setaf 2 && echo "Image successfully shrinked"
 
 	# reducing img file size
 	truncate_point=$(($part_new_end + $FREE_BLOCKS * $block_size))
 	echo
-	echo "Truncating img at $truncate_point"
+	tput setaf 3 && echo "Truncating img at $truncate_point"
 	truncate -s $truncate_point $img_file
 
 else
@@ -147,10 +146,10 @@ fi
 
 if [ -z $disk ] 
 then
-	echo "Skipping filling"
+	tput setaf 4 && echo "Skipping filling"
 else
 	echo
-	echo "Copying image to disk"
+	tput setaf 3 && echo "Copying image to disk"
 	dd if="$img_file" of="$disk" status=progress
 	echo
 	
@@ -161,4 +160,4 @@ else
 	resize2fs "$disk"$primary_partition_n
 fi
 
-echo 'Done!'
+tput setaf 2 && echo 'Done!'
