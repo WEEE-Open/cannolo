@@ -5,13 +5,12 @@ set -e
 FREE_BLOCKS=20
 
 usage(){
-	echo 'Usage: $0 [OPTION] IMAGE DISK_DEVICE'
+	echo "Usage: $0 [OPTION] IMAGE [DISK_DEVICE]"
 	echo "Shrink the given image, copy it to the given disk and expand it to fill all the space"
 	echo "--no-bake: skip image shrinking"
-	echo "--no-fill: skip image copying/expanding"
 	echo 
 	echo IMAGE: a disk image
-	echo 'DISK_DEVICE: a disk device file, such as /dev/sdb'
+	echo 'DISK_DEVICE: a disk device file, such as /dev/sdb. If provided, the passed image will be copied to it.' 
 }
 
 #
@@ -34,9 +33,6 @@ do
 		--no-bake)
 			no_bake=true
 			shift;;
-		--no-fill)
-			no_fill=true
-			shift;;
 		--)
 			shift
 			break;;
@@ -51,12 +47,6 @@ disk=$2
 if [ -z $img_file ]
 then
 	echo "Please provide an image"
-	exit 1
-fi
-
-if [ -z $disk ]
-then
-	echo "Please provide a disk"
 	exit 1
 fi
 
@@ -155,8 +145,10 @@ else
 fi
 
 
-if ! $no_fill 
+if [ -z $disk ] 
 then
+	echo "Skipping filling"
+else
 	echo
 	echo "Copying image to disk"
 	dd if="$img_file" of="$disk" status=progress
@@ -167,8 +159,6 @@ then
 	
 	# resize filesystem to fit newly extended partition
 	resize2fs "$disk"$primary_partition_n
-else
-	echo "Skipping filling"
 fi
 
 echo 'Done!'
