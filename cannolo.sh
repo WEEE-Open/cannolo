@@ -8,6 +8,7 @@ usage(){
 	echo "Usage: $0 [OPTION] IMAGE [DISK_DEVICE]"
 	echo "Shrink the given image, copy it to the given disk and expand it to fill all the space"
 	echo "--no-bake: skip image shrinking"
+	echo "--post-install: a script to be executed on the new disk (used as primary partition)"
 	echo 
 	echo IMAGE: a disk image
 	echo 'DISK_DEVICE: a disk device file, such as /dev/sdb. If provided, the passed image will be copied to it.' 
@@ -17,7 +18,7 @@ usage(){
 # parse argument
 # 
 
-parsed_options=$(getopt -n $0 -o "h" --long "help,no-bake,no-fill" -- $@)
+parsed_options=$(getopt -n $0 -o "h" --long "help,no-bake,post-install:" -- $@)
 eval set -- "$parsed_options"
 
 no_bake=false
@@ -26,12 +27,18 @@ while true
 do
 	case "$1" in 
 		-h|--help)
-			tput set af usage
+			usage
 			exit 0
 			;;
 		--no-bake)
 			no_bake=true
 			shift;;
+		--post-install)
+			if [ -n $2 ]
+			then
+				script=$2
+			fi 
+			shift 2;;
 		--)
 			shift
 			break;;
@@ -161,3 +168,32 @@ else
 fi
 
 tput setaf 2 && echo 'Done!'
+
+# 
+# mount image and chroot
+# 
+
+if [ -n $script ]
+then
+	temp_mount_folder=$(mktemp -d)
+	mount "$disk"$primary_partition_n $temp_mount_folder
+	tput setaf 2 && echo "Disk mounted"
+	
+	# save PATH and add missing paths (may change on different distributions)
+	path_old=$PATH
+	export PATH="$PATH":/bin
+	
+	# append static DNS configuration
+	printf "nameserver 8.8.8.8\nnameserver8.8.4.4\n" > "$temp_mount_folder/etc/resolv.conf"
+	
+	# copy and execute actual script
+	cp $script $temp_mount_folder 
+	chmod +x "$temp_mount_folder/$script"
+	chroot $temp_mount_folder ./`basename $script`
+	
+	# empty resolv.conf file
+	touch "$temp_mount_folder/etc/resolv.conf"
+	
+	# restore PATH
+	PATH="$path_old"
+fi
