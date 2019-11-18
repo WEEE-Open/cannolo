@@ -185,22 +185,26 @@ then
 	# append static DNS configuration
 	printf "nameserver 8.8.8.8\nnameserver8.8.4.4\n" > "$temp_mount_folder/etc/resolv.conf"
 	
-	tput setaf 2 && "Starting script execution"
+	tput setaf 2 && echo "Starting script execution"
 
 	# copy and execute actual script
 	tput setaf 6 
 	cp $script $temp_mount_folder 
-	chmod +x "$temp_mount_folder/$script"
-	chroot $temp_mount_folder ./`basename $script`
 	
+	script_new_loc="$temp_mount_folder/`basename $script`"
+	chmod +x $script_new_loc	
+	chroot $temp_mount_folder ./`basename $script`
+	rm "$script_new_loc"
+
 	# empty resolv.conf file
 	touch "$temp_mount_folder/etc/resolv.conf"
 	
 	# restore PATH
-	PATH="$path_old"
+	export PATH="$path_old"
 fi
 
 umount $temp_mount_folder
-rm $temp_mount_folder 
+rm -r $temp_mount_folder 
 
+echo
 tput setaf 2 && echo 'Done!'
