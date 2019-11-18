@@ -154,6 +154,7 @@ fi
 if [ -z $disk ] 
 then
 	tput setaf 4 && echo "Skipping filling"
+	exit 0
 else
 	echo
 	tput setaf 3 && echo "Copying image to disk"
@@ -167,18 +168,16 @@ else
 	resize2fs "$disk"$primary_partition_n
 fi
 
-tput setaf 2 && echo 'Done!'
-
 # 
 # mount image and chroot
 # 
 
+temp_mount_folder=$(mktemp -d)
+mount "$disk"$primary_partition_n $temp_mount_folder
+tput setaf 2 && echo "Disk mounted"
+
 if [ -n $script ]
 then
-	temp_mount_folder=$(mktemp -d)
-	mount "$disk"$primary_partition_n $temp_mount_folder
-	tput setaf 2 && echo "Disk mounted"
-	
 	# save PATH and add missing paths (may change on different distributions)
 	path_old=$PATH
 	export PATH="$PATH":/bin
@@ -186,7 +185,10 @@ then
 	# append static DNS configuration
 	printf "nameserver 8.8.8.8\nnameserver8.8.4.4\n" > "$temp_mount_folder/etc/resolv.conf"
 	
+	tput setaf 2 && "Starting script execution"
+
 	# copy and execute actual script
+	tput setaf 6 
 	cp $script $temp_mount_folder 
 	chmod +x "$temp_mount_folder/$script"
 	chroot $temp_mount_folder ./`basename $script`
@@ -197,3 +199,8 @@ then
 	# restore PATH
 	PATH="$path_old"
 fi
+
+umount $temp_mount_folder
+rm $temp_mount_folder 
+
+tput setaf 2 && echo 'Done!'
