@@ -7,8 +7,10 @@ FREE_BLOCKS=20
 usage(){
 	echo "Usage: $0 [OPTION] IMAGE [DISK_DEVICE]"
 	echo "Shrink the given image, copy it to the given disk and expand it to fill all the space"
+	echo 
 	echo "--no-bake: skip image shrinking"
 	echo "--post-install: a script to be executed on the new disk (used as primary partition)"
+	echo "--hostname: new hostname on the disk"
 	echo 
 	echo IMAGE: a disk image
 	echo 'DISK_DEVICE: a disk device file, such as /dev/sdb. If provided, the passed image will be copied to it.' 
@@ -18,7 +20,7 @@ usage(){
 # parse argument
 # 
 
-parsed_options=$(getopt -n $0 -o "h" --long "help,no-bake,post-install:" -- $@)
+parsed_options=$(getopt -n $0 -o "h" --long "help,no-bake,post-install:,hostname:" -- $@)
 eval set -- "$parsed_options"
 
 no_bake=false
@@ -39,6 +41,12 @@ do
 				script=$2
 			fi 
 			shift 2;;
+		--hostname)
+			if [ -n $2 ]
+			then
+				new_hostname=$2
+			fi
+			shift 2;;	
 		--)
 			shift
 			break;;
@@ -174,9 +182,24 @@ fi
 
 temp_mount_folder=$(mktemp -d)
 mount "$disk"$primary_partition_n $temp_mount_folder
+echo 
 tput setaf 2 && echo "Disk mounted"
 
-if [ -n $script ]
+if [ -n $new_hostname ]
+then
+	tput setaf 4 && echo "Changing hostname"
+	
+	old_hostname=`cat "$temp_mount_folder"/etc/hostname`
+	echo "Old hostname: $old_hostname"
+
+	sed -i "s/$old_hostname/$new_hostname/g" "$temp_mount_folder"/etc/hosts
+	echo "$new_hostname" > "$temp_mount_folder/etc/hostname"
+
+	tput setaf 2 && echo "Disk mounted"
+	echo
+fi
+
+if [ -n "$script" ]
 then
 	# save PATH and add missing paths (may change on different distributions)
 	path_old=$PATH
