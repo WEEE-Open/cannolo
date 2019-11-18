@@ -185,7 +185,7 @@ mount "$disk"$primary_partition_n $temp_mount_folder
 echo 
 tput setaf 2 && echo "Disk mounted"
 
-if [ -n $new_hostname ]
+if [ -n "$new_hostname" ]
 then
 	tput setaf 4 && echo "Changing hostname"
 	
@@ -195,7 +195,7 @@ then
 	sed -i "s/$old_hostname/$new_hostname/g" "$temp_mount_folder"/etc/hosts
 	echo "$new_hostname" > "$temp_mount_folder/etc/hostname"
 
-	tput setaf 2 && echo "Disk mounted"
+	tput setaf 2 && echo "Hostname successfully changed"
 	echo
 fi
 
