@@ -38,13 +38,13 @@ do
 			no_bake=true
 			shift;;
 		--post-install)
-			if [ -n $2 ]
+			if [ -n "$2" ]
 			then
 				script=$2
 			fi 
 			shift 2;;
 		--hostname)
-			if [ -n $2 ]
+			if [ -n "$2" ]
 			then
 				new_hostname=$2
 			fi
