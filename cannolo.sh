@@ -12,6 +12,7 @@ usage(){
 	echo "--post-install: a script to be executed on the new disk (used as primary partition)"
 	echo "--hostname: new hostname on the disk"
 	echo "--shutdown: shutdown the machine when the process is completed"
+	echo "--swap <swap size>: create a swapfile on the primary partition and enable swap on it"
 	echo 
 	echo IMAGE: a disk image
 	echo 'DISK_DEVICE: a disk device file, such as /dev/sdb. If provided, the passed image will be copied to it.' 
@@ -21,7 +22,7 @@ usage(){
 # parse argument
 # 
 
-parsed_options=$(getopt -n $0 -o "h" --long "help,no-bake,post-install:,hostname:,shutdown" -- $@)
+parsed_options=$(getopt -n $0 -o "h" --long "help,no-bake,post-install:,hostname:,shutdown,swap:" -- $@)
 eval set -- "$parsed_options"
 
 no_bake=false
@@ -49,6 +50,12 @@ do
 				new_hostname=$2
 			fi
 			shift 2;;	
+		--swap)
+			if [ -n "$2" ]
+			then
+				swap_size=$2
+			fi
+			shift 2;;
 		--shutdown)
 			shutdown=true
 			shift;;
@@ -202,6 +209,27 @@ then
 
 	tput setaf 2 && echo "Hostname successfully changed"
 	echo
+fi
+
+# create swapfile if specified appropriate option
+if [ -n "$swap_size" ]
+then
+	swapfile="$temp_mount_folder/swapfile"
+	
+	# allocate specified space
+	fallocate -l "$swap_size" "$swapfile"
+	
+	# set correct permissions
+	chmod 600 "$swapfile"
+	
+	# set up Linux swap area and collect uuid
+	UUID_info=$(mkswap mount/swapfile1 | tail -1 | sed 's/^[^(UUID)]*//g')
+
+	# enable the swap
+	chroot "$temp_mount_folder" swapon "/`basename $swapfile`"
+
+	# update fstab file
+	printf "\n# $UUID_info\n/swapfile swap swap defaults 0 0\n" >> "$temp_mount_folder/etc/fstab"
 fi
 
 if [ -n "$script" ]
