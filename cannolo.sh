@@ -11,6 +11,7 @@ usage(){
 	echo "--no-bake: skip image shrinking"
 	echo "--post-install: a script to be executed on the new disk (used as primary partition)"
 	echo "--hostname: new hostname on the disk"
+	echo "--shutdown: shutdown the machine when the process is completed"
 	echo 
 	echo IMAGE: a disk image
 	echo 'DISK_DEVICE: a disk device file, such as /dev/sdb. If provided, the passed image will be copied to it.' 
@@ -20,10 +21,11 @@ usage(){
 # parse argument
 # 
 
-parsed_options=$(getopt -n $0 -o "h" --long "help,no-bake,post-install:,hostname:" -- $@)
+parsed_options=$(getopt -n $0 -o "h" --long "help,no-bake,post-install:,hostname:,shutdown" -- $@)
 eval set -- "$parsed_options"
 
 no_bake=false
+shutdown=false
 
 while true
 do
@@ -47,6 +49,9 @@ do
 				new_hostname=$2
 			fi
 			shift 2;;	
+		--shutdown)
+			shutdown=true
+			shift;;
 		--)
 			shift
 			break;;
@@ -231,3 +236,8 @@ rm -r $temp_mount_folder
 
 echo
 tput setaf 2 && echo 'Done!'
+
+if $shutdown 
+then
+	shutdown now
+fi
