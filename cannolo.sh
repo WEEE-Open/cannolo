@@ -166,7 +166,7 @@ then
 else
 	echo
 	tput setaf 3 && echo "Copying image to disk"
-	dd if="$img_file" of="$disk" status=progress
+	dd if="$img_file" of="$disk" oflag=sync,nocache status=progress
 	echo
 	
 	echo "Expanding primary partition"
