@@ -197,6 +197,10 @@ mount "$disk"$primary_partition_n $temp_mount_folder
 echo 
 tput setaf 2 && echo "Disk mounted"
 
+# save PATH and add missing paths (may change on different distributions)
+path_old=$PATH
+export PATH="$PATH:/bin"
+
 if [ -n "$new_hostname" ]
 then
 	tput setaf 4 && echo "Changing hostname"
@@ -223,10 +227,7 @@ then
 	chmod 600 "$swapfile"
 	
 	# set up Linux swap area and collect uuid
-	UUID_info=$(mkswap mount/swapfile1 | tail -1 | sed 's/^[^(UUID)]*//g')
-
-	# enable the swap
-	chroot "$temp_mount_folder" swapon "/`basename $swapfile`"
+	UUID_info=$(mkswap $swapfile | tail -1 | sed 's/^[^(UUID)]*//g')
 
 	# update fstab file
 	printf "\n# $UUID_info\n/swapfile swap swap defaults 0 0\n" >> "$temp_mount_folder/etc/fstab"
@@ -234,9 +235,6 @@ fi
 
 if [ -n "$script" ]
 then
-	# save PATH and add missing paths (may change on different distributions)
-	path_old=$PATH
-	export PATH="$PATH":/bin
 	
 	# append static DNS configuration
 	printf "nameserver 8.8.8.8\nnameserver8.8.4.4\n" > "$temp_mount_folder/etc/resolv.conf"
@@ -255,9 +253,10 @@ then
 	# empty resolv.conf file
 	touch "$temp_mount_folder/etc/resolv.conf"
 	
-	# restore PATH
-	export PATH="$path_old"
 fi
+
+# restore PATH
+export PATH="$path_old"
 
 umount $temp_mount_folder
 rm -r $temp_mount_folder 
