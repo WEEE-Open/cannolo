@@ -177,8 +177,16 @@ then
 	exit 0
 else
 	echo
+
+	tput setaf 3 && echo "Calculating optimal block size for dd"
+	ibs=$(stat -f "$img_file" -c %s)
+	obs=$(stat -f "$disk" -c %s)
+
+	echo "Input block size: $ibs"
+	echo "Output block size: $obs"
+
 	tput setaf 3 && echo "Copying image to disk"
-	dd if="$img_file" of="$disk" oflag=sync,nocache status=progress
+	dd if="$img_file" ibs="$ibs" of="$disk" obs="$obs" oflag=sync,nocache status=progress
 	echo
 	
 	echo "Expanding primary partition"
