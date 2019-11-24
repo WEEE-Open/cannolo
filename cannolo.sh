@@ -106,8 +106,15 @@ echo
 # calculating number, start, size and end of the new primary partition
 # 
 
-# TODO: assert there is only one primary partition
 primary_partition_n=$(parted $img_file --script print | awk '$5=="primary" { print $1 }')
+
+# check there is only one primary partition
+primary_partitions_count=$(echo $primary_partition_n | wc -l) 
+if [[ "$primary_partitions_count" -ne 1  ]]; then
+	tput setaf 3 && echo "The image contains more than 1 primary partition, exiting..."
+	exit 1 
+fi
+
 tput setaf 4 && echo "Number of the primary partition: $primary_partition_n"
 
 # gathering data
