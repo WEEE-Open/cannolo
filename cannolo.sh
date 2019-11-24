@@ -111,7 +111,7 @@ primary_partition_n=$(parted $img_file --script print | awk '$5=="primary" { pri
 # check there is only one primary partition
 primary_partitions_count=$(echo $primary_partition_n | wc -l) 
 if [[ "$primary_partitions_count" -ne 1  ]]; then
-	tput setaf 3 && echo "The image contains more than 1 primary partition, exiting..."
+	tput setaf 3 && echo "The image contains an invalid number of primary partitions, exiting..."
 	exit 1 
 fi
 
