@@ -12,7 +12,7 @@ parted growroot awk tune2fs resize2fs fallocate
 
 ## Usage 
 
-Available option are listed when the script is launched with `-h` or `--help`
+Available options (also listed when the script is launched with `-h` or `--help`):
 
 **--no_bake**: passed image will not be shrinked nor modified in any way. Otherwise it will be resized to be as much small as possible.
 
