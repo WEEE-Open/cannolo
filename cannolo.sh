@@ -87,7 +87,7 @@ then
         else    
                 exit 1
         fi      
-elif [ ! -f "$disk" ] && [ ! -z "$disk" ]
+elif [ -f $disk ] && [ ! -z "$disk" ]
 then
 	# an invalid argument is passed
 	tput setaf 3 && echo "Device not existing"
@@ -183,7 +183,7 @@ else
 fi
 
 
-if [ -z $disk ] 
+if [ -z "$disk" ] 
 then
 	tput setaf 4 && echo "Skipping filling"
 	exit 0
