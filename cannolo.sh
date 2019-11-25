@@ -87,6 +87,11 @@ then
         else    
                 exit 1
         fi      
+elif [ ! -f "$disk" ] && [ ! -z "$disk" ]
+then
+	# an invalid argument is passed
+	tput setaf 3 && echo "Device not existing"
+	exit 1
 fi
 
 # require root privileges
