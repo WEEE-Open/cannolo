@@ -16,7 +16,7 @@ parted growroot awk tune2fs resize2fs fallocate
 
 Available options (also listed when the script is launched with `-h` or `--help`):
 
-`--no_bake`: passed image will not be shrinked nor modified in any way. Otherwise it will be resized to be as small as possible.
+`--no-bake`: passed image will not be shrinked nor modified in any way. Otherwise it will be resized to be as small as possible.
 
 `--post-install /path/to/script`: a script to be executed on the new disk, using it as root partition. Warning: Some systemd tools such as hostnamectl, localectl and timedatectl can not be used, as they require an active dbus connection and this option uses internally `chroot`(see [chroot on the ArchWiki](https://wiki.archlinux.org/index.php/Chroot)).
 
