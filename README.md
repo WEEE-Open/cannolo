@@ -1,4 +1,4 @@
-# cannolo
+# C.A.N.N.O.L.O.
 
 *Catapultatore Automatico Nucleare per il Nostro Opportuno Linux Ordinario*
 
