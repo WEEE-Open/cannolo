@@ -9,7 +9,7 @@ usage(){
 	echo "Shrink the given image, copy it to the given disk and expand it to fill all the space"
 	echo 
 	echo "--no-bake: skip image shrinking"
-	echo "--post-install: a script to be executed on the new disk (used as primary partition)"
+	echo "--post-install /path/to/script: a script to be executed on the new disk (used as primary partition)"
 	echo "--hostname: new hostname on the disk"
 	echo "--shutdown: shutdown the machine when the process is completed"
 	echo "--swap <swap size>: create a swapfile on the primary partition and enable swap on it"
