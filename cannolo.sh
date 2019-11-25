@@ -193,7 +193,7 @@ else
 	echo "Output block size: $obs"
 
 	tput setaf 3 && echo "Copying image to disk"
-	dd if="$img_file" ibs="$ibs" of="$disk" obs="$obs" oflag=sync,nocache status=progress
+	dd if="$img_file" ibs="$ibs" of="$disk" obs="$obs" conv=fsync status=progress
 	echo
 	
 	echo "Expanding primary partition"
