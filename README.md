@@ -1,5 +1,7 @@
 # cannolo
 
+*Catapultatore Automatico Nucleare per il Nostro Opportuno Linux Ordinario*
+
 A bash tool to automatically shrink, flash and expand a disk image on an external device. 
 
 ## Dependencies
