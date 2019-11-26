@@ -9,7 +9,7 @@ A bash tool to automatically shrink, flash and expand a disk image on an externa
 Before launching the script make sure to have on your system
 
 ```
-parted growroot awk tune2fs resize2fs fallocate
+parted growpart awk tune2fs resize2fs fallocate
 ```
 
 ## Usage 
