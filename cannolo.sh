@@ -189,7 +189,10 @@ then
 	exit 0
 else
 	echo
-
+	tput setaf 3 && echo "Unmounting the disk (if mounted)" 
+	# unmount the disk and escape from the error (in case it is not mounted)
+	umount -f "$disk" || true 
+	
 	tput setaf 3 && echo "Calculating optimal block size for dd"
 	ibs=$(stat -f "$img_file" -c %s)
 	obs=$(stat -f "$disk" -c %s)
