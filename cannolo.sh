@@ -205,8 +205,12 @@ else
 	echo
 	
 	echo "Expanding primary partition"
-	growpart $disk $primary_partition_n
-	
+	# expand partition, skipping partition table update in the kernel since it may cause 
+	# partprobe to fail because of partx
+	growpart -u 'off' $disk $primary_partition_n
+	# kernel is notified of partition table update through partprobe instead
+	partprobe "$disk"
+
 	# resize filesystem to fit newly extended partition
 	resize2fs "$disk"$primary_partition_n
 fi
