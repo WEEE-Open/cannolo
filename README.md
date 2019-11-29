@@ -15,7 +15,7 @@ parted growpart awk tune2fs resize2fs fallocate
 On most Debian based systems all needed dependencies can be installed with 
 
 ```
-sudo apt install cloud-guest-utils
+sudo apt install cloud-guest-utils parted
 ```
 
 ## Usage 
