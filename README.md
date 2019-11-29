@@ -36,6 +36,14 @@ Available options (also listed when the script is launched with `-h` or `--help`
 The length and offset arguments may be followed by the multiplicative suffixes KiB (=1024), MiB (=1024*1024), and so on for GiB, TiB, PiB, EiB, ZiB, and YiB (the "iB" is optional, e.g., "K" has the same meaning as "KiB") or the suffixes KB (=1000), MB (=1000*1000), and so on for GB, TB, PB, EB, ZB, and YB.
 ```
 
+### Example
+
+A typical usage example 
+
+```
+sudo ./cannolo.sh xubuntu.img --hostname weee --swap 1G /dev/sdb  
+```
+
 ## Supported schemes
 
 This script has been tested on simple BIOS partition schemes, containing only one primary partition with the operative system (both for x86 and x86_64 architectures).
