@@ -30,7 +30,7 @@ Available options (also listed when the script is launched with `-h` or `--help`
 
 `--shutdown`: shutdown the machine immediately after finishing the script execution
 
-`--swap <swap size>`: add a swap to the primary OS on the new disk. Needs a partition size that can be accepted from the `fallocate` command.   
+`--swap <swap size>`: add a swap to the primary OS on the new disk. Needs a partition size that can be accepted by the `fallocate` command.   
 Possible suffixes: `K`, `M`, `G`, `T`, `P`, `E`, `Z`, `Y`.  
 Only two suffixes of practical use at this point in time: `M` for Megabytes and `G` for Gigabytes.  
 From [its man page](http://man7.org/linux/man-pages/man1/fallocate.1.html):  
