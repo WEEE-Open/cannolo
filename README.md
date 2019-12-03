@@ -38,13 +38,29 @@ From [its man page](http://man7.org/linux/man-pages/man1/fallocate.1.html):
 The length and offset arguments may be followed by the multiplicative suffixes KiB (=1024), MiB (=1024*1024), and so on for GiB, TiB, PiB, EiB, ZiB, and YiB (the "iB" is optional, e.g., "K" has the same meaning as "KiB") or the suffixes KB (=1000), MB (=1000*1000), and so on for GB, TB, PB, EB, ZB, and YB.
 ```
 
-### Example
+### Examples
 
-A typical usage example 
+A typical usage example
 
 ```
-sudo ./cannolo.sh xubuntu.img --hostname weee --swap 1G /dev/sdb  
+sudo ./cannolo.sh xubuntu.img --hostname weee --swap 1G /dev/sdb
 ```
+
+#### Image creation
+
+This is the procedure I followed (both for 32 and 64 bits BIOS images)
+
+1. I created a disk on VirtualBox with default size (10 GB), default type (`vdi`) but with fixed size (in this case the default option is dynamically allocated, but choosing that option will result in xubuntu formatting the disk with LVM, probably because it is easier to resize it in future).
+2. Install xubuntu according to instructions
+3. Execute [pesca](https://github.com/WEEE-Open/pesca) on it
+4. Comment or delete the line starting with `/swapfile`, since by default xubuntu creates a `swapfile`.
+5. Remove `/swapfile` (a reboot may be needed)
+
+Then, to create the `.img` just run
+```bash
+VBoxManage clonemedium --format RAW <file.vdi> <file.img>
+```
+
 
 ## Supported schemes
 
