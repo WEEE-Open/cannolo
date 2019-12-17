@@ -48,12 +48,17 @@ sudo ./cannolo.sh xubuntu.img --hostname weee --swap 1G /dev/sdb
 
 #### Image creation
 
-This is the procedure I followed (both for 32 and 64 bits BIOS images)
+This is the procedure I followed
 
 1. I created a disk on VirtualBox with default size (10 GB), default type (`vdi`) but with fixed size (in this case the default option is dynamically allocated, but choosing that option will result in xubuntu formatting the disk with LVM, probably because it is easier to resize it in future).
 2. Install xubuntu according to instructions
 3. Execute [pesca](https://github.com/WEEE-Open/pesca) on it
-4. Comment or delete the line starting with `/swapfile` in `/etc/fstab`, since by default xubuntu creates a `swapfile`.
+4. Comment or delete the line starting with `/swapfile` in `/etc/fstab`, since by default xubuntu creates a `swapfile`.  
+**ONLY FOR 32 BIT**: Regenerate grub config files with 
+```
+sudo grub-mkconfig -o /boot/grub/grub.cfg
+```
+(and if neeeded update the packages, but in this case it is already done by the pesca).  
 5. Remove `/swapfile` (a reboot may be needed)
 
 Then, to create the `.img` just run
