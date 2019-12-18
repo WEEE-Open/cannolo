@@ -50,16 +50,20 @@ sudo ./cannolo.sh xubuntu.img --hostname weee --swap 1G /dev/sdb
 
 This is the procedure I followed
 
-1. I created a disk on VirtualBox with default size (10 GB), default type (`vdi`) but with fixed size (in this case the default option is dynamically allocated, but choosing that option will result in xubuntu formatting the disk with LVM, probably because it is easier to resize it in future).
-2. Install xubuntu according to instructions
+1. I created a disk on VirtualBox with default size (10 GB), default type (`vdi`) but with fixed size (in this case the default option is dynamically allocated, but choosing that option will result in Xubuntu formatting the disk with LVM, probably because it is easier to resize it in future).
+2. Install Xubuntu according to instructions:  
+  i. Start Xubuntu > F4 > "OEM installation" > Install  
+  ii. Name asked in the first screen: `WEEE Open`  
+  iii. Automatic partitioning  
+  iv. Password: _read the archives_  
 3. Execute [pesca](https://github.com/WEEE-Open/pesca) on it
-4. Comment or delete the line starting with `/swapfile` in `/etc/fstab`, since by default xubuntu creates a `swapfile`.  
+4. Comment or delete the line starting with `/swapfile` in `/etc/fstab`, since by default Xubuntu creates a `swapfile`.  
 **ONLY FOR 32 BIT**: Regenerate grub config files with 
 ```
 sudo grub-mkconfig -o /boot/grub/grub.cfg
 ```
 (and if neeeded update the packages, but in this case it is already done by the pesca).  
-5. Remove `/swapfile` (a reboot may be needed)
+5. Remove the file `/swapfile` (a reboot may be needed)
 
 Then, to create the `.img` just run
 ```bash
