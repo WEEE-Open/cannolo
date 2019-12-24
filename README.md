@@ -70,6 +70,16 @@ Then, to create the `.img` just run
 VBoxManage clonemedium --format RAW <file.vdi> <file.img>
 ```
 
+#### Useful aliases 
+
+The file `env.sh` contains some useful aliases:
+- `img2vdi <file.img> <file.vdi>` creates a `vdi` file from the passed `.img`
+- `vdi2img <file.vdi> <file.img>` does the exact opposite process
+
+These aliases can be enabled simply by running
+```bash
+source env.sh
+```
 
 ## Supported schemes
 
