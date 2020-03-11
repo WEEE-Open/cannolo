@@ -43,7 +43,7 @@ The length and offset arguments may be followed by the multiplicative suffixes K
 A typical usage example
 
 ```
-sudo ./cannolo.sh xubuntu.img --hostname weee --swap 1G /dev/sdb
+sudo ./cannolo.sh xubuntu.img --hostname PC-42 --swap 1G /dev/sdb
 ```
 
 #### Image creation
