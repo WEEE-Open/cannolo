@@ -264,7 +264,7 @@ if [ -n "$script" ]
 then
 	
 	# append static DNS configuration
-	printf "nameserver 8.8.8.8\nnameserver8.8.4.4\n" > "$temp_mount_folder/etc/resolv.conf"
+	printf "nameserver 1.1.1.1\nnameserver1.0.0.1\n" > "$temp_mount_folder/etc/resolv.conf"
 	
 	tput setaf 2 && echo "Starting script execution"
 
