@@ -59,11 +59,12 @@ This is the procedure I followed
 3. Execute [pesca](https://github.com/WEEE-Open/pesca) on it
 4. Comment or delete the line starting with `/swapfile` in `/etc/fstab`, since by default Xubuntu creates a `swapfile`.  
 **ONLY FOR 32 BIT**: Regenerate grub config files with 
-```
-sudo grub-mkconfig -o /boot/grub/grub.cfg
-```
-(and if neeeded update the packages, but in this case it is already done by the pesca).  
-5. Remove the file `/swapfile` (a reboot may be needed)
+    ```
+    sudo grub-mkconfig -o /boot/grub/grub.cfg
+    ```
+    (and if neeeded update the packages, but in this case it is already done by the pesca).  
+5. Remove the file `/swapfile` (a reboot may be needed).  
+6. Remove the system logs (just run `sudo journalctl --rotate && sudo journalctl --vacuum-time=1s`) and all the files download during the process (basically the `pesca`)  
 
 Then, to create the `.img` just run
 ```bash
